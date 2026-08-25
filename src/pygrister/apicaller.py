@@ -123,8 +123,31 @@ class ApiCaller:
             req_opts = {'stream': True, **self.request_options}
         elif upload_files: # upload mode, method *must* be POST!
             method = 'POST'
-        r = Request(method, url, headers=headers, params=params, 
-                    json=json, files=upload_files)
+        
+        if json is not None and not upload_files:
+            body = modjson.dumps(
+                json,
+                ensure_ascii=False,  # `Request` uses `True`
+                separators=(',', ':'),  # `Request` uses `(', ', ': ')`
+            ).encode('utf-8')
+
+            r = Request(
+                method,
+                url,
+                headers={**headers, 'Content-Type': 'application/json'},
+                params=params,
+                data=body,
+            )
+        else:
+            r = Request(
+                method,
+                url,
+                headers=headers,
+                params=params,
+                json=json,
+                files=upload_files,
+            )
+                    
         session = self.session or Session()
         self.request = session.prepare_request(r)
         if self.dry_run: # let's assume a dry run equals to HTTPError...
