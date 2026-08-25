@@ -14,6 +14,7 @@ pth = Path('gryrequest.json') # optional, to pass even more options to Requests
 if pth.is_file(): 
     with open(pth, 'r', encoding='utf8') as f:
         req_options.update(loads(f.read()))
+    del f
 a = _CliApiCaller(configurator=c, request_options=req_options)
 gry = GristApi(custom_apicaller=a)
 gry.in_converter = cli_in_converters
@@ -32,6 +33,5 @@ del cli_out_converters
 del req_options
 del a
 del c
-del f
 del pth
 del __version__
